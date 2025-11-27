@@ -1,0 +1,4 @@
+CompileFlags:
+  Add: [
+    -I${PROJECT_ROOT}/engine/src,
+  ]

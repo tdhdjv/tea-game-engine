@@ -1,0 +1,4 @@
+CompileFlags:
+  Add: [
+    -Isrc,
+    -I$VULKAN_SDK/include,
