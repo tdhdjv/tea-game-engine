@@ -1,4 +1,5 @@
 #include "logger.h"
+#include "../platform/platform.h"
 #include "asserts.h"
 
 //TODO: temporary
@@ -15,12 +16,13 @@ void log_shutdown() {
   // TODO: close log info files/clean up
 }
 
-void log_output(logLevel level, const char* message, ...) {
+void log_output(LogLevel level, const char* message, ...) {
   const char* levelStrings[6] = {"FATAL", "ERROR", "WARN", "INFO", "DEBUG", "TRACE"};
-  b8 isError = level < 2;
+  b8 isError = level < LOG_LEVEL_WARN;
 
   //There is a MESSAGE limit
-  char outMessage[32000];
+  const i32 logLength = 32000;
+  char outMessage[logLength];
   memset(outMessage, 0, sizeof(outMessage));
 
   // Format original message.
@@ -32,11 +34,15 @@ void log_output(logLevel level, const char* message, ...) {
   vsnprintf(outMessage, 32000, message, arg_ptr);
   va_end(arg_ptr);
 
-  char outMessage2[32000];
+  char outMessage2[logLength];
   sprintf(outMessage2, "[%s]: %s\n", levelStrings[level], outMessage);
 
   // TODO: platform-specific output.
-  printf("%s", outMessage2);
+  if(isError) {
+    platform_console_write_error(outMessage2, level);
+  } else {
+    platform_console_write(outMessage2, level);
+  }
 }
 
 void assert_failure_report(const char *expression, const char *message, const char *file, i32 line) {

@@ -13,19 +13,19 @@
   #define LOG_TRACE_ENEABLED 0 
 #endif
 
-typedef enum logLevel {
+typedef enum LogLevel {
   LOG_LEVEL_FATAL = 0,
   LOG_LEVEL_ERROR = 1,
   LOG_LEVEL_WARN = 2,
   LOG_LEVEL_INFO = 3,
   LOG_LEVEL_DEBUG = 4,
   LOG_LEVEL_TRACE = 5
-} logLevel;
+} LogLevel;
 
 b8 log_init();
 void log_shutdown();
 
-TAPI void log_output(logLevel level, const char* message, ...);
+TAPI void log_output(LogLevel level, const char* message, ...);
 
 #define TFATAL(message, ...) log_output(LOG_LEVEL_FATAL, message, ##__VA_ARGS__)
 #define TERROR(message, ...) log_output(LOG_LEVEL_ERROR, message, ##__VA_ARGS__)
