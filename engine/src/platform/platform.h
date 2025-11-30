@@ -2,17 +2,19 @@
 
 #include "../defines.h"
 
-TAPI b8 platform_startup(void* platformState, const char* applicationName, i32 x, i32 y, i32 width, i32 height);
+b8 platform_startup(void** platformState, const char* applicationName, i32 x, i32 y, i32 width, i32 height);
 
-TAPI void platform_shutdown(void* platformState);
+void platform_shutdown(void* platformState);
 
-TAPI b8 platform_pump_message(void* platformState);
+b8 platform_pump_message(void* platformState);
 
 void* platform_allocate(u64 size, b8 aligned);
-void platform_free(void* block, b8 aligned);
-void* platform_zero_memory(void* block, u64 size);
-void* platform_copy_memory(void* dest, const void* source, u64 size);
-void* platform_set_memory(void* dest, i32 value, u64 size);
+void* platform_reallocate(void *block, u64 size, b8 aligned);
+void platform_free(void *block, b8 aligned);
+void* platform_zero_memory(void *block, u64 size);
+void* platform_copy_memory(void *dest, const void* source, u64 size);
+void* platform_move_memory(void *dest, const void* source, u64 size);
+void* platform_set_memory(void *dest, i32 value, u64 size);
 
 void platform_console_write(const char* message, u8 color);
 void platform_console_write_error(const char* message, u8 color);

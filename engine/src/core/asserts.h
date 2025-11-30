@@ -14,20 +14,20 @@
 
   void assert_failure_report(const char *expression, const char *message, const char *file, i32 line);
 
-  #define TASSERT(expr) {                                  \
-      if(!(expr)) {                                          \
-        assert_failure_report(#expr, "", __FILE__, __LINE__);\
-        debug_break();                                       \
-      }                                                      \
-    }
+  #define TASSERT(expr) {                                    \
+    if(!(expr)) {                                          \
+      assert_failure_report(#expr, "", __FILE__, __LINE__);\
+      debug_break();                                       \
+    }                                                      \
+  }
   
-  #define TASSERT_MSG(expr, message) {                                  \
-      if(!(expr)) {                                          \
-        assert_failure_report(#expr, message, __FILE__, __LINE__);\
-        debug_break();                                       \
-      }                                                      \
-    }
-  
+  #define TASSERT_MSG(expr, message) {                            \
+    if(!(expr)) {                                               \
+      assert_failure_report(#expr, message, __FILE__, __LINE__);\
+      debug_break();                                            \
+    }                                                           \
+  }
+
   #ifdef _DEBUG
   #define TASSERT_DEBUG(expr, message) {                                  \
       if(!(expr)) {                                          \
@@ -40,8 +40,8 @@
   #endif
 #else
 
-  #define TASSERT(expr)
-  #define TASSERT_MSG(expr, message)
-  #define TASSERT_DEBUG(expr)
+  #define TASSERT(expr) if(!(expr)) return false;
+  #define TASSERT_MSG(expr, message) if(!(expr)) return false;
+  #define TASSERT_DEBUG(expr) if(!(expr)) return false;
 
 #endif

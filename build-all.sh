@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # Build script for rebuilding everything
 set echo on
 
@@ -11,7 +12,7 @@ popd
 ERRORLEVEL=$?
 if [ $ERRORLEVEL -ne 0 ]
 then
-echo "Error:"$ERRORLEVEL && exit
+  echo "Error:"$ERRORLEVEL && exit
 fi
 
 pushd testbed
@@ -20,7 +21,7 @@ popd
 ERRORLEVEL=$?
 if [ $ERRORLEVEL -ne 0 ]
 then
-echo "Error:"$ERRORLEVEL && exit
+  echo "Error:"$ERRORLEVEL && exit
 fi
 
 echo "All assemblies built successfully."

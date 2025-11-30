@@ -17,9 +17,9 @@ static LARGE_INTEGER startTime;
 
 LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARAM l_param);
 
-b8 platform_startup(void* platformState, const char* applicationName, i32 x, i32 y, i32 width, i32 height) {
-  platformState = malloc(sizeof(PlatformState));
-  PlatformState *state = (PlatformState*)platformState; 
+b8 platform_startup(void** platformState, const char* applicationName, i32 x, i32 y, i32 width, i32 height) {
+  *platformState = malloc(sizeof(PlatformState));
+  PlatformState *state = (PlatformState*)*platformState; 
 
   state->hInstance = GetModuleHandleA(0);
 
@@ -122,6 +122,10 @@ void *platform_allocate(u64 size, b8 aligned) {
   return malloc(size);
 }
 
+void *platform_allocate(void *block, u64 size, b8 aligned) {
+  return realloc(block, size);
+}
+
 void platform_free(void *block, b8 aligned) {
   free(block);
 }
@@ -132,6 +136,10 @@ void *platform_zero_memory(void *block, u64 size) {
 
 void *platform_copy_memory(void *dest, const void* source, u64 size) {
   return memcpy(dest, source, size);
+}
+
+void *platform_move_memory(void *dest, const void* source, u64 size) {
+  return memmove(dest, source, size);
 }
 
 void *platform_set_memory(void *dest, i32 value, u64 size) {
