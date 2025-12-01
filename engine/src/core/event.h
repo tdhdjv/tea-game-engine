@@ -21,13 +21,13 @@ typedef union {
 
 
 //returns true if handled the event
-typedef b8 (*PFN_on_event)(u16 code, void* sender, void* listenerInstance, EventContext data);
+typedef b8 (*PFN_on_event)(u16 code, void* sender, void* listener, EventContext data);
 
 b8 event_init();
 void event_shutdown();
 
-TAPI b8 event_registry(u16 code, void *listener, PFN_on_event on_event);
-TAPI b8 event_unregistry(u16 code, void *listener, PFN_on_event on_event);
+TAPI b8 event_register(u16 code, void *listener, PFN_on_event on_event);
+TAPI b8 event_unregister(u16 code, void *listener, PFN_on_event on_event);
 TAPI b8 event_fire(u16 code, void *sender, EventContext context);
 
 typedef enum SystemEventCode {

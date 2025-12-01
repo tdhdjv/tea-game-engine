@@ -2,6 +2,7 @@
 
 #include "tmemory.h"
 #include "../containers/darray.h"
+#include "logger.h"
 
 typedef struct RegisteredEvent {
   void *listener;
@@ -38,7 +39,7 @@ void event_shutdown() {
   }
 }
 
-b8 event_registry(u16 code, void *listener, PFN_on_event on_event) {
+b8 event_register(u16 code, void *listener, PFN_on_event on_event) {
   if(!isInitialized) return false;
 
   if(state.registered[code] == NULL) {
@@ -51,7 +52,6 @@ b8 event_registry(u16 code, void *listener, PFN_on_event on_event) {
       return false;
     }
   }
-
   RegisteredEvent event;
   event.listener = listener;
   event.callback = on_event;
@@ -60,7 +60,7 @@ b8 event_registry(u16 code, void *listener, PFN_on_event on_event) {
   return true;
 }
 
-b8 event_unregistry(u16 code, void *listener, PFN_on_event on_event) {
+b8 event_unregister(u16 code, void *listener, PFN_on_event on_event) {
   if(!isInitialized) return false;
 
   if(state.registered[code] == NULL) {
@@ -83,11 +83,13 @@ b8 event_fire(u16 code, void *sender, EventContext context) {
 
   if(state.registered[code] == NULL) {
     state.registered[code] = darray_create(RegisteredEvent, 1);
+    
   }
 
   u64 registeredCount = darray_length(state.registered[code]);
   for(u64 i = 0; i < registeredCount; i++) {
     RegisteredEvent event = state.registered[code][i]; 
+    
     if(event.callback(code, sender, event.listener, context)) {
       //event is handled then it is finished
       return true;

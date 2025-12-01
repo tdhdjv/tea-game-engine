@@ -66,6 +66,7 @@ void input_process_button(Buttons button, b8 pressed) {
 
 void input_process_mouse_move(i16 x, i16 y) {
   if(state.mouseCurrent.x != x || state.mouseCurrent.y != y) {
+
     state.mouseCurrent.x = x;
     state.mouseCurrent.y = y;
 

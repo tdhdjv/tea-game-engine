@@ -37,9 +37,10 @@ void* _darray_append(void* darray, void* value) {
   length = header->length;
   stride = header->stride;
   if(header->length >= header->capacity) {
-    if(!_darray_grow(darray, header->capacity*DARRAY_GROW_FACTOR)) return false;
+    darray = _darray_grow(darray, header->capacity*DARRAY_GROW_FACTOR);
   }
   tcopy_memory((darray) + stride*(length-1), value, stride);
+  
   return darray;
 }
 
@@ -55,14 +56,14 @@ void* _darray_insert(void* darray, void* value, u32 index) {
   u32 stride;
   DynamicArrayHeader* header = darray - DARRAY_HEADER_SIZE;
   if(index > header->length) {
-    return false;
+    return darray;
   }
 
   header->length++;
   length = header->length;
   stride = header->stride;
   if(header->length >= header->capacity) {
-    _darray_grow(darray, header->capacity*DARRAY_GROW_FACTOR);
+    darray = _darray_grow(darray, header->capacity*DARRAY_GROW_FACTOR);
   }
   tmove_memory((darray) + stride*(index+1), (darray) + stride*index, (length-index)*stride);
   tcopy_memory((darray) + stride*index, value, stride);
@@ -71,17 +72,17 @@ void* _darray_insert(void* darray, void* value, u32 index) {
 
 b8 _darray_remove(void* darray, u32 index, void* dest) {
   DynamicArrayHeader* header = darray - DARRAY_HEADER_SIZE;
-  header->length--;
   if(index >= header->length) {
     TERROR("Index outside of the bounds of this array!: Length: %i, Index %i", header->length, index);
     return false;
   }
+  header->length--;
   if(dest) tcopy_memory(dest, darray + header->stride*index, header->stride);
   tmove_memory(darray + header->stride*index, darray + header->stride*(index+1), header->stride*(header->length-index));
   return true;
 }
 
-u32 darray_length(const void* darray) {
+u64 darray_length(const void* darray) {
   const DynamicArrayHeader* header = darray - DARRAY_HEADER_SIZE;
   return header->length;
 }

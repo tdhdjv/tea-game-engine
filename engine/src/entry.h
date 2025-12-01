@@ -6,7 +6,6 @@
 extern b8 create_game(Game* outGame);
 
 int main(void) {
-
   memory_init();
 
   Game gameInstance;

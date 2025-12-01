@@ -1,9 +1,15 @@
 #include "platform.h"
+
+#if TPLATFORM_LINUX
 #include <wayland-client-core.h>
 #include <wayland-client-protocol.h>
 
+<<<<<<< HEAD
 #define TPLATFORM_WINDOW_X11
 #if TPLATFORM_LINUX
+=======
+//#define TPLATFORM_WINDOW_WAYLAND
+>>>>>>> origin
 #include "../core/logger.h"
 #include "../core/input.h"
 
