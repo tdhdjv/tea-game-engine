@@ -1,5 +1,6 @@
 #include "platform.h"
 #include "../core/logger.h"
+#include "../core/input.h"
 
 #if TPLATFORM_WINDOWS
 
@@ -79,7 +80,7 @@ b8 platform_startup(void** platformState, const char* applicationName, i32 x, i3
       MessageBoxA(NULL, "Window creation failed!", "Error!", MB_ICONEXCLAMATION | MB_OK);
 
       TFATAL("Window creation failed!");
-      return FALSE;
+      return false;
   } else {
       state->handleWindow = handle;
   }
@@ -122,7 +123,7 @@ void *platform_allocate(u64 size, b8 aligned) {
   return malloc(size);
 }
 
-void *platform_allocate(void *block, u64 size, b8 aligned) {
+void* platform_reallocate(void *block, u64 size, b8 aligned) {
   return realloc(block, size);
 }
 
@@ -179,60 +180,79 @@ void platform_sleep(u64 ms) {
 }
 
 LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARAM l_param) {
-    switch (msg) {
-        case WM_ERASEBKGND:
-            // Notify the OS that erasing will be handled by the application to prevent flicker.
-            return 1;
-        case WM_CLOSE:
-            // TODO: Fire an event for the application to quit.
-            return 0;
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            return 0;
-        case WM_SIZE: {
-            // Get the updated size.
-            // RECT r;
-            // GetClientRect(hwnd, &r);
-            // u32 width = r.right - r.left;
-            // u32 height = r.bottom - r.top;
+  switch (msg) {
+    case WM_ERASEBKGND:
+        // Notify the OS that erasing will be handled by the application to prevent flicker.
+        return 1;
+    case WM_CLOSE:
+        // TODO: Fire an event for the application to quit.
+        return 0;
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        return 0;
+    case WM_SIZE: {
+        // Get the updated size.
+        // RECT r;
+        // GetClientRect(hwnd, &r);
+        // u32 width = r.right - r.left;
+        // u32 height = r.bottom - r.top;
 
-            // TODO: Fire an event for window resize.
-        } break;
-        case WM_KEYDOWN:
-        case WM_SYSKEYDOWN:
-        case WM_KEYUP:
-        case WM_SYSKEYUP: {
-            // Key pressed/released
-            //b8 pressed = (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN);
-            // TODO: input processing
+        // TODO: Fire an event for window resize.
+    } break;
+    case WM_KEYDOWN:
+    case WM_SYSKEYDOWN:
+    case WM_KEYUP:
+    case WM_SYSKEYUP: {
+      // Key pressed/released
+      b8 pressed = (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN);
+      Keys key = (u16)w_param;
 
-        } break;
-        case WM_MOUSEMOVE: {
-            // Mouse move
-            //i32 x_position = GET_X_LPARAM(l_param);
-            //i32 y_position = GET_Y_LPARAM(l_param);
-            // TODO: input processing.
-        } break;
-        case WM_MOUSEWHEEL: {
-            // i32 z_delta = GET_WHEEL_DELTA_WPARAM(w_param);
-            // if (z_delta != 0) {
-            //     // Flatten the input to an OS-independent (-1, 1)
-            //     z_delta = (z_delta < 0) ? -1 : 1;
-            //     // TODO: input processing.
-            // }
-        } break;
+      input_process_key(key, pressed);
+
+    } break;
+    case WM_MOUSEMOVE: {
+        // Mouse move
+      i32 xPosition = GET_X_LPARAM(l_param);
+      i32 yPosition = GET_Y_LPARAM(l_param);
+
+      input_process_mouse_move(xPosition, yPosition);
+
+    } break;
+    case WM_MOUSEWHEEL: {
+      i32 zDelta = GET_WHEEL_DELTA_WPARAM(w_param);
+        if (zDelta != 0) {
+          // Flatten the input to an OS-independent (-1, 1)
+          zDelta = (zDelta < 0) ? -1 : 1;
+          input_process_mouse_wheel(zDelta);
+        }
+    } break;
+    case WM_LBUTTONDOWN:
+    case WM_MBUTTONDOWN:
+    case WM_RBUTTONDOWN:
+    case WM_LBUTTONUP:
+    case WM_MBUTTONUP:
+    case WM_RBUTTONUP: {
+      b8 pressed = msg == WM_LBUTTONDOWN || msg == WM_RBUTTONDOWN || msg == WM_MBUTTONDOWN;
+      Buttons mouseButton = BUTTON_MAX_BUTTONS; 
+      switch (msg) {
         case WM_LBUTTONDOWN:
-        case WM_MBUTTONDOWN:
-        case WM_RBUTTONDOWN:
         case WM_LBUTTONUP:
-        case WM_MBUTTONUP:
-        case WM_RBUTTONUP: {
-            //b8 pressed = msg == WM_LBUTTONDOWN || msg == WM_RBUTTONDOWN || msg == WM_MBUTTONDOWN;
-            // TODO: input processing.
-        } break;
-    }
-
-    return DefWindowProcA(hwnd, msg, w_param, l_param);
+          mouseButton = BUTTON_LEFT;
+        break;
+        case WM_RBUTTONDOWN:
+        case WM_RBUTTONUP:
+          mouseButton = BUTTON_RIGHT;
+        break;
+        case WM_MBUTTONDOWN:
+        case WM_MBUTTONUP: 
+          mouseButton = BUTTON_MIDDLE;
+        break;
+      }
+      if(mouseButton != BUTTON_MAX_BUTTONS) {
+        input_process_button(mouseButton, pressed);
+      }
+    } break;
+  }
+  return DefWindowProcA(hwnd, msg, w_param, l_param);
 }
-
 #endif

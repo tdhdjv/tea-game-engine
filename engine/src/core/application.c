@@ -19,6 +19,10 @@ typedef struct ApplicationState {
 static b8 initialized = false;
 static ApplicationState appState;
 
+//Event handler
+b8 application_on_event(u16 code, void *sender, void *listener, EventContext context);
+b8 application_on_key(u16 code, void *sender, void *listener, EventContext context);
+
 b8 application_create(Game* game) {
   TINFO(get_memory_usage_str());
   if(initialized) {
@@ -47,6 +51,10 @@ b8 application_create(Game* game) {
         game->appConfig.startHeight)) {
     return false;
   }
+
+  event_register(EVENT_CODE_APPLICATION_QUIT, 0, application_on_event);
+  event_register(EVENT_CODE_KEY_PRESSED, 0, application_on_key);
+  event_register(EVENT_CODE_KEY_RELEASED, 0, application_on_key);
 
   initialized = true;
   return true;
@@ -77,10 +85,51 @@ b8 application_run() {
 
   appState.isRunning = false;
 
+  event_unregister(EVENT_CODE_APPLICATION_QUIT, 0, application_on_event);
+  event_unregister(EVENT_CODE_KEY_PRESSED, 0, application_on_key);
+  event_unregister(EVENT_CODE_KEY_RELEASED, 0, application_on_key);
+
   event_shutdown();
   input_shutdown();
 
   platform_shutdown(appState.platformState);
 
   return true;
+}
+
+b8 application_on_event(u16 code, void *sender, void *listener, EventContext context) {
+  switch(code) {
+    case EVENT_CODE_APPLICATION_QUIT: {
+      TINFO("EVENT_CODE_APPLICATION_QUIT recieved, shutting down. \n");
+      appState.isRunning = false;
+      return true;
+    }
+  }
+  return false;
+}
+
+b8 application_on_key(u16 code, void *sender, void *listener, EventContext context) {
+  if(code == EVENT_CODE_KEY_PRESSED) {
+    u16 keyCode = context.uint16[0];
+    if(keyCode == KEY_ESCAPE) {
+      EventContext data = {};
+      event_fire(EVENT_CODE_APPLICATION_QUIT, 0, data);
+      return true;
+    }
+    else if(keyCode == KEY_A) {
+      TDEBUG("Explicit: A key pressed!");
+    }
+    else {
+      TDEBUG("'%c' key pressed in window", keyCode);
+    }
+  } else if(code == EVENT_CODE_KEY_RELEASED) {
+    u16 keyCode = context.uint16[0];
+    if(keyCode == KEY_B) {
+      TDEBUG("Explicit: B key relased!");
+    }
+    else {
+      TDEBUG("'%c' key released in window", keyCode);
+    }
+  }
+  return false;
 }

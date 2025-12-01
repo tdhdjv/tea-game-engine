@@ -1,9 +1,10 @@
 #include "platform.h"
+
+#if TPLATFORM_LINUX
 #include <wayland-client-core.h>
 #include <wayland-client-protocol.h>
 
 //#define TPLATFORM_WINDOW_WAYLAND
-#if TPLATFORM_LINUX
 #include "../core/logger.h"
 
 #include <stdlib.h>
